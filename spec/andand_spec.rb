@@ -7,6 +7,7 @@ describe "Andand macro" do
 
   it "rewrites sends with 1 argument" do
     [1,2,3].andand.inject(:+).should == 6
+    #
   end
 
   it "rewrites sends with many arguments" do
@@ -31,9 +32,15 @@ describe "Andand macro" do
     [1,2,3].andand.inject(0) { |sum,n| sum + n}.should == 6
   end
 
-#  describe "with blocks" do
-#    it "passes left argument as a block parameter" do
-#      'foo'.andand { |fu| fu + 'bar'}.should == 'foobar'
+  describe "with blocks" do
+    it "passes left argument as a block parameter" do
+      'foo'.andand { |fu| fu + 'bar'}.should == 'foobar'
+      # fu = 'foo' and fu + 'bar'
+      #
+    end
+
+#    it "degenerates block with no parameter and one statement" do
+#      'foo'.andand { :bar }.should == :bar
 #    end
-#  end
+  end
 end

@@ -24,6 +24,11 @@ module Macros
         # [1,2,3].andand.inject {|sum,n| sum + n}
         method_send.array.last.right.block = Rubinius::AST::Iter.new(line, arguments, body)
         method_send
+      elsif method_send.name == :andand
+        # 'foo'.andand {|fu| fu }
+        # fu = 'foo' and fu
+        assgn = Rubinius::AST::LocalVariableAssignment.new(line, arguments.name, method_send.receiver)
+        Rubinius::AST::And.new(line, assgn, body)
       else
         super
       end
