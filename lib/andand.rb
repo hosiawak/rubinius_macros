@@ -1,7 +1,9 @@
 module Macros
   module Andand
+
+    ANDAND = :andand
     def process_call(line, receiver, name, arguments)
-      if receiver.kind_of?(Rubinius::AST::Send) && receiver.name == :andand
+      if receiver.kind_of?(Rubinius::AST::Send) && receiver.name == ANDAND
         local_var = gensym
         assgn = Rubinius::AST::LocalVariableAssignment.new(line, local_var, receiver.receiver)
         left = Rubinius::AST::LocalVariableAccess.new(line, local_var)
@@ -24,11 +26,17 @@ module Macros
         # [1,2,3].andand.inject {|sum,n| sum + n}
         method_send.array.last.right.block = Rubinius::AST::Iter.new(line, arguments, body)
         method_send
-      elsif method_send.name == :andand
-        # 'foo'.andand {|fu| fu }
-        # fu = 'foo' and fu
-        assgn = Rubinius::AST::LocalVariableAssignment.new(line, arguments.name, method_send.receiver)
-        Rubinius::AST::And.new(line, assgn, body)
+      elsif method_send.name == ANDAND
+        if arguments
+          # 'foo'.andand {|fu| fu }
+          # fu = 'foo' and fu
+          assgn = Rubinius::AST::LocalVariableAssignment.new(line, arguments.name, method_send.receiver)
+          Rubinius::AST::And.new(line, assgn, body)
+        else
+          # 'foo'.andand { :bar }
+          # 'foo' and :bar
+          Rubinius::AST::And.new(line, method_send.receiver, body)
+        end
       else
         super
       end
@@ -40,6 +48,11 @@ module Macros
         body = Rubinius::AST::LocalVariableAccess.new(line, body.name)
         method_send.array.last.right.block = Rubinius::AST::BlockPass.new(line, body)
         method_send
+      elsif method_send.name == ANDAND
+        # :foo.andand(&blk)
+        # :foo and blk.call
+        right = Rubinius::AST::Send.new(line, body, :call)
+        Rubinius::AST::And.new(line, method_send.receiver, right)
       else
         super
       end

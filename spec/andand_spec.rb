@@ -1,5 +1,9 @@
 describe "Andand macro" do
 
+  it "returns the left hand argument if the right is missing" do
+    :foo.andand.should == :foo
+  end
+
   it "rewrites foo.andand.bar into __x__ = foo; x && x.bar" do
     [1,2,3].andand.to_s.should == "123"
     nil.andand.to_s.should == nil
@@ -32,15 +36,22 @@ describe "Andand macro" do
     [1,2,3].andand.inject(0) { |sum,n| sum + n}.should == 6
   end
 
-  describe "with blocks" do
+  describe "with a block on the right side" do
     it "passes left argument as a block parameter" do
       'foo'.andand { |fu| fu + 'bar'}.should == 'foobar'
       # fu = 'foo' and fu + 'bar'
       #
     end
 
-#    it "degenerates block with no parameter and one statement" do
-#      'foo'.andand { :bar }.should == :bar
-#    end
+    it "degenerates block with no parameter and one statement" do
+      # 'foo' and :bar
+      'foo'.andand { :bar }.should == :bar
+    end
+
+    it "accepts a passed block" do
+      b = proc { :bar }
+      'foo'.andand(&b).should == :bar
+    end
+
   end
 end

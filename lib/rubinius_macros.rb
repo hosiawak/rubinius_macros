@@ -16,7 +16,7 @@ module Macros
 end
 
 class Rubinius::Compiler::Parser
-  def self.default_processor
+  def self.processor
     Macros::Processor
   end
 end
