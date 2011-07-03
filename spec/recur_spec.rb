@@ -9,6 +9,14 @@ describe "Recur macro" do
       end
     end
 
+    def fib(n, x, y)
+      if n == 0
+        x
+      else
+        recur(n - 1, y, x + y)
+      end
+    end
+
     def default_arg_simple(a = 1)
       a == 10 ? :ok : recur(a + 1)
     end
@@ -48,6 +56,10 @@ describe "Recur macro" do
 
   it "rebinds variables to passed args and goes to the start of the method" do
     @t.factorial(4,1).should == 24
+  end
+
+  it "doesn't blow the stack with too many call frames" do
+    @t.fib(10_000, 0, 1).to_s[0...10].should == "3364476487"
   end
 
   context "optional args" do
