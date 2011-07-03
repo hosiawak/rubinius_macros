@@ -14,11 +14,20 @@ module Rubinius
       end
 
       def calc_start_pos(g)
-        diff = g.total_args - g.required_args
-        # some arguments are default
-        # move the position pointer
-        diff * 8
+        if g.state.scope.is_a? Rubinius::AST::Define
+          if optional_args = g.state.scope.arguments.defaults
+            # optional arguments set
+            # generate their bytecode onto a new generator
+            # and return the generator's ip to skip their bytecode
+            gen = optional_args.new_generator(g, "default_args_generator")
+            gen.push_state(g.state.scope)
+            gen.execute(optional_args)
+            return gen.ip
+          end
+        end
+        0 # no optional args, position is 0
       end
+
     end
 
     class Recur < Node
@@ -29,16 +38,49 @@ module Rubinius
       end
 
       def bytecode(g)
-        # insert label at the beginning of the method
 
         @arguments.body.each_with_index do |arg,idx|
           # push each argument result to the stack
           g.execute(arg)
         end
-        # pop the values and rebind to vars in reverse order
-        (@arguments.body.size-1).downto(0) do |idx|
-          g.set_local idx
-          g.pop
+
+        passed_arg_size = @arguments.body.size
+
+        if passed_arg_size > g.total_args
+
+          if !g.state.scope.arguments.splat
+            # recur passed more arguments than defined by the method
+            # raise Rubinius::CompileError
+            msg = "#{passed_arg_size} arguments passed to recur, expected #{g.total_args} in #{g.state.name}"
+            raise Rubinius::CompileError.new(msg)
+          else
+            # splat arg
+            # destructure the rest
+
+            splat_idx = g.total_args
+            # def method(*ary)
+            # rebind recur(ary[0] - 1, ary[0] * ary[1]) as
+            # ary[0] = ary[0] - 1
+            # ary[1] = ary[0] * ary[1]
+            # ary[n] = recur(n)
+            (passed_arg_size-1).downto(splat_idx) do |idx|
+              g.push_local splat_idx
+              g.push_int   idx - splat_idx
+              g.swap_stack
+              g.rotate     3
+              g.send :[]=, 2
+              g.pop
+            end
+          end
+
+        end
+
+        if g.total_args > 0
+          # pop the values and rebind to vars in reverse order
+          (g.total_args - 1).downto(0) do |idx|
+            g.set_local idx
+            g.pop
+          end
         end
 
         g.goto BeginningLabel.new(g)
