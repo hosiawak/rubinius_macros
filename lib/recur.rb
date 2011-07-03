@@ -38,6 +38,7 @@ module Rubinius
       end
 
       def bytecode(g)
+        pos(g)
 
         @arguments.body.each_with_index do |arg,idx|
           # push each argument result to the stack

@@ -8,6 +8,7 @@ module Rubinius
       end
 
       def bytecode(g)
+        pos(g)
         g.goto Label.get(@label, g)
       end
     end
@@ -30,6 +31,7 @@ module Rubinius
       end
 
       def bytecode(g)
+        pos(g)
         self.class.get(@label, g).set!
       end
     end

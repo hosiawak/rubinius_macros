@@ -37,7 +37,7 @@ describe "Recur macro" do
       if n == 0
         ary[0]
       else
-        recur(n - 1, n * ary[0])
+        recur(n - 1, n * ary[0]);
       end
     end
   end
@@ -89,6 +89,7 @@ describe "Recur macro" do
       m = "def not_enough(a,*b);recur(1,2,3);end"
       lambda { eval(m)}.should_not raise_error(Rubinius::CompileError)
     end
+
   end
 
 end
