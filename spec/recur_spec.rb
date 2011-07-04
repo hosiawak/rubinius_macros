@@ -1,7 +1,7 @@
 describe "Recur macro" do
 
   class RecurTest
-    def factorial(n, product)
+    def factorial(n, product=1)
       if n == 0
         product
       else
@@ -9,13 +9,22 @@ describe "Recur macro" do
       end
     end
 
-    def fib(n, x, y)
+    def fib(n, x=0, y=1)
       if n == 0
         x
       else
         recur(n - 1, y, x + y)
       end
     end
+
+    def regular_fib(n, x=0, y=1)
+      if n == 0
+        x
+      else
+        regular_fib(n - 1, y, x + y)
+      end
+    end
+
 
     def default_arg_simple(a = 1)
       a == 10 ? :ok : recur(a + 1)
@@ -55,11 +64,12 @@ describe "Recur macro" do
   end
 
   it "rebinds variables to passed args and goes to the start of the method" do
-    @t.factorial(4,1).should == 24
+    @t.factorial(4).should == 24
   end
 
   it "doesn't blow the stack with too many call frames" do
-    @t.fib(10_000, 0, 1).to_s[0...10].should == "3364476487"
+    lambda { @t.regular_fib(20_000) }.should raise_error(StackError)
+    lambda { @t.fib(20_000) }.should_not raise_error(StackError)
   end
 
   context "optional args" do

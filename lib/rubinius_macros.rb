@@ -1,10 +1,12 @@
-require 'lib/gensym'
-require 'lib/swap'
-require 'lib/symbol_to_proc'
-require 'lib/string_to_proc'
-require 'lib/andand'
-require 'lib/goto'
-require 'lib/recur'
+base = File.dirname(__FILE__)
+
+require base + '/gensym'
+require base + '/swap'
+require base + '/symbol_to_proc'
+require base + '/string_to_proc'
+require base + '/andand'
+require base + '/goto'
+require base + '/recur'
 
 module Macros
 
