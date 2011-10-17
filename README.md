@@ -5,13 +5,12 @@ The macros utilize parser/compiler architecture and transform AST and generate c
 
 The idea occured to me after playing with Rubinius bytecode compiler in an irb session: https://gist.github.com/1021515
 
-## It's like Rewrite Rails (but better :) )
+## It's similar to Rewrite Rails
 
-Then thinking about the possibility of macros in Ruby I found Raganwald's Rewrite Rails https://github.com/raganwald/rewrite_rails and thus this project emerged.
+but instead of using an external parser to parse .rr files and modify AST it uses Rubinius' compiler to achieve it.
+The implementation is much simpler.
 
-The main difference between Rewrite Rails and rubinius_macros is rubinius_macros runs on Rubinius and Rubinius has got a very flexible compiler infrastructure.
-That's why the macros don't need an external parser/tool and any extra steps to reparse your Ruby program containing macros into something Ruby understands.
-This is all done automatically during parsing/bytecode generation stages by Rubinius. Rewrite Rails utilized an external parser for .rr files.
+In addition to AST some of the macros generate custom bytecode for some macros (Recur)
 
 ## Goals:
 
