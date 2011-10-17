@@ -19,6 +19,14 @@ Provide a set of macros to use with Ruby (eg. SymbolToProc, Andand, Returning, R
 
 ## How to use ?
 
+1. Apply this patch https://gist.github.com/1293642 to your cloned copy of Rubinius
+
+2. To rebuild Rubinius kernel with the applied patch run:
+
+    rake kernel
+
+3. Run your code with macros:
+
     rbx -rlib/rubinius_macros your_script.rb
 
 ## How to run specs ?
